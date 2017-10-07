@@ -1,1 +1,1 @@
-# Chronolabs Cooperative ~ RSS Calendar Feed ~ Multiple Calendars Here and Now ~ http://time.labs.coop
+# Chronolabs Cooperative ~ Internet WhoIS Services API ~ http://whois.labs.coop 

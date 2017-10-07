@@ -19,14 +19,15 @@
  * @description		Multiple Calendars on RSS Feed for the Here and Now
  */
 
-require_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'constants.php');
-require_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'functions.php');
-require_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'calendars.php');
+require_once(__DIR__ . DIRECTORY_SEPARATOR . 'apiconfig.php');
+require_once(__DIR__ . DIRECTORY_SEPARATOR . 'constants.php');
+require_once(__DIR__ . DIRECTORY_SEPARATOR . 'functions.php');
+require_once(__DIR__ . DIRECTORY_SEPARATOR . 'calendars.php');
 
 error_reporting(E_ERRORS);
 ini_set('display_errors', true);
 ini_set("log_errors" , false);
-ini_set("error_log" , dirname(__FILE__)."/errors.log.".md5(__FILE__).".txt");
+ini_set("error_log" , __DIR__."/errors.log.".md5(__FILE__).".txt");
 
 $seconds = 0;
 $zones = 0;

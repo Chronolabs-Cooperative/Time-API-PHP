@@ -19,6 +19,33 @@
  * @description	    Multiple Calendars on RSS Feed for the Here and Now
  */
 
+
+if (!function_exists("checkForErrorResponse")) {
+    
+    function checkForErrorResponse($array = array(), $mode = 'twitter', $die = true)
+    {
+        if (!isset($GLOBALS['reponses'])||!is_array($GLOBALS['reponses']))
+            $GLOBALS['reponses'] = array('errors' => array());
+            switch($mode)
+            {
+                default:
+                case 'twitter':
+                    if (isset($array['errors']) && count($array['errors']) > 0)
+                    {
+                        foreach($array['errors'] as $key => $error)
+                            $GLOBALS['reponses']['errors'][$mode.'-'.$key.'-'.$error['code']] = "Twitter API Error (" . $error['code'] . ') ~ ' . $error['message'];
+                    }
+                    break;
+            }
+            if (count($errors)>0 && $die == true)
+                die("\n\nErrors Occured:\n\n" .implode("\n", $GLOBALS['reponses']['errors']));
+                elseif (count($errors)>0 && $die == false)
+                return true;
+                else
+                    return false;
+    }
+}
+
 /**
  * xoStripeKey()
  * Stripes a checksum for guid

@@ -115,4 +115,5 @@ foreach(APILists::getDirListAsArray($path = dirname(__DIR__) . DIRECTORY_SEPARAT
             }
         }
     }
-    ?>
+}
+?>

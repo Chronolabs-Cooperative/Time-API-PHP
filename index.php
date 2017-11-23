@@ -87,7 +87,7 @@ $arDateFrench = cal_from_jd(gregoriantojd($gregorianMonth,$gregorianDay,$gregori
 $jdDate = gregoriantojd($gregorianMonth,$gregorianDay,$gregorianYear);
 $hebrewMonthName = jdmonthname($jdDate,4);
 $hebrewDate = jdtojewish($jdDate);
-list($hebrewMonth, $hebrewDay, $hebrewYear) = split('/',$hebrewDate);
+list($hebrewMonth, $hebrewDay, $hebrewYear) = explode('/',$hebrewDate);
 
 
 ?>

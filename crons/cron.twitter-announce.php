@@ -19,23 +19,31 @@
  * @description		Multiple Calendars on RSS Feed for the Here and Now
  */
 
+error_reporting(E_ALL);
 require_once(dirname(__DIR__) . DIRECTORY_SEPARATOR . 'apiconfig.php');
+echo __LINE__ . "\n";
 require_once(dirname(__DIR__) . DIRECTORY_SEPARATOR . 'constants.php');
+echo __LINE__ . "\n";
 require_once(dirname(__DIR__) . DIRECTORY_SEPARATOR . 'functions.php');
+echo __LINE__ . "\n";
 require_once(dirname(__DIR__) . DIRECTORY_SEPARATOR . 'calendars.php');
+echo __LINE__ . "\n";
 require_once(dirname(__DIR__) . DIRECTORY_SEPARATOR . 'class' . DIRECTORY_SEPARATOR . 'TwitterAPIExchange.php');
+echo __LINE__ . "\n";
 require_once(dirname(__DIR__) . DIRECTORY_SEPARATOR . 'class' . DIRECTORY_SEPARATOR . 'apilists.php');
-
+echo __LINE__ . "\n";
+error_reporting(E_ALL);
 
 foreach(APILists::getDirListAsArray($path = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'include'  . DIRECTORY_SEPARATOR . 'twitter') as $folder)
 {
+    echo __LINE__ . "\n";
     if ($settings = @include($path . DIRECTORY_SEPARATOR . $folder  . DIRECTORY_SEPARATOR . 'settings.php'))
     {
-        
+        echo __LINE__ . "\n";
         date_default_timezone_set($settings['timezone']);
         $seconds = date_offset_get(new DateTime);
         $zone = $seconds / 3600 - 1;
-        $now = time() - ($zone * 3600);
+        $now = time() - ($zone * 3599);
         
         $jd = cal_to_jd(CAL_GREGORIAN,date('m',$now ),date('d',$now ),date('y',$now ));
         $tmp=get_jd_dmy($jd);
@@ -51,7 +59,7 @@ foreach(APILists::getDirListAsArray($path = dirname(__DIR__) . DIRECTORY_SEPARAT
         $jdDate = gregoriantojd($gregorianMonth,$gregorianDay,$gregorianYear);
         $hebrewMonthName = jdmonthname($jdDate,4);
         $hebrewDate = jdtojewish($jdDate);
-        list($hebrewMonth, $hebrewDay, $hebrewYear) = split('/',$hebrewDate);
+        list($hebrewMonth, $hebrewDay, $hebrewYear) = explode('/',$hebrewDate);
     
         $roun 			        =		RounCalendar($now,$zone);
         
@@ -72,6 +80,9 @@ foreach(APILists::getDirListAsArray($path = dirname(__DIR__) . DIRECTORY_SEPARAT
         $roun_buddhist 		    = 		BuddhistCalendar($now,$zone);
         
         $roun_gregorian 		= 		GregorianCalendar($now,$zone);
+
+	$japan                 =               JapaneseCalendar($now,$zone);
+
         
         $roun_vedic     		= 		VedicCalendar($now,$zone);
         
@@ -94,10 +105,12 @@ foreach(APILists::getDirListAsArray($path = dirname(__DIR__) . DIRECTORY_SEPARAT
         $tweet['japan'] = "Japanese Calendar : " .  $japan['date'].' '.$japan['time'] . "\n\nJapanese Calendar - elements = " .  $japan['cause'] . "\nStardate: " .  $japan['stardate'] . "\n\nTimezone: " . $settings['timezone'];
         $tweet['hijri'] = "Hijri Calendar : " .  $hijri[1].' '.HijriCalendar::monthName($hijri[0]).' '.$hijri[2] . "\n\nThe lunar calendar used by islamic culture.\nStardate: " .  $hijri[2].'.'.$hijri[1] . "\n\nTimezone: " . $settings['timezone'];
         $tweet['jalali'] = "Jalali Calendar : " .  $d.'-'.$m.'-'.$y . "\n\nThe lunar calendar used by Iranian.\nStardate: " .  $y.'.'.$d . "\n\nTimezone: " . $settings['timezone'];
-        $tweet['julian'] = "Julian Day Calendar : " .  jdtojulian($julianDate) . "\n\nJulian Number Day Calendar.&lt;br/&gt;Star Date: " .  $jules[0].'.'.$jules[2] . "\nJulian Day Decimal : " .  $julianDate . "\n\nTimezone: " . $settings['timezone'];
+        $tweet['julian'] = "Julian Day Calendar : " .  jdtojulian($julianDate) . "\n\nJulian Number Day Calendar.\nStar Date: " .  $jules[0].'.'.$jules[2] . "\nJulian Day Decimal : " .  $julianDate . "\n\nTimezone: " . $settings['timezone'];
         $tweet['buddha'] = "Buddhist Calendar : " .  $roun_buddhist['strout']. ' '.$roun_buddhist['mname'] . "\n\nBuddhist Calendar.\nStardate: " .  $roun_buddhist['stardate'] . "\n\nTimezone: " . $settings['timezone'];
         $tweet['gregorian'] = "Gregorian Calendar : " .  $roun_gregorian['strout'] . "\n\nGregorian Calendar.\nStardate: " .  $roun_gregorian['stardate'] . "\n\nTimezone: " . $settings['timezone'];
-    
+	
+	echo "Printing Following Times:\n\n".implode("\n\n", $tweet);
+
         $keys = array_keys($tweet);
         shuffle($keys);
         shuffle($keys);
@@ -108,11 +121,14 @@ foreach(APILists::getDirListAsArray($path = dirname(__DIR__) . DIRECTORY_SEPARAT
         {
             $twitter = new TwitterAPIExchange($settings['twitter']);
             $getfields = array('status'=>$tweet[$key], 'auto_populate_reply_metadata' => true);
-            $postfields = array();
-            if(!checkForErrorResponse($init = json_decode($twitter->setGetfield(http_build_query($getfields))->buildOauth('https://api.twitter.com/1.1/statuses/update.json', 'GET')->performRequest(), true), 'twitter'))
+            $postfields = array('status'=>$tweet[$key], 'auto_populate_reply_metadata' => true);
+            $init = json_decode($twitter->buildOauth('https://api.twitter.com/1.1/statuses/update.json', 'POST')->setPostfields($postfields)->performRequest(), true);
+	    if (!isset($init['errors'][0]['message']))
             {
-                
-            }
+                echo "\nTweeted: " . $tweet[$key];
+            } else {
+		echo "\nError: " . $init['errors'][0]['message'];
+	    }
         }
     }
 }
